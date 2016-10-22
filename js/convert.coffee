@@ -28,9 +28,8 @@ locationToQuadKey = (lat, lon, level) ->
   quadKey
 
 quadKeyToLocation = (qk) ->
-  mapSize = 1 << qk.length
-  [x, y] = [mapSize/2, mapSize/2]
-  offset = mapSize/4
+  [x, y] = [0, 0]
+  offset = 90
   for square in qk.split('')
     switch parseInt(square)
       when 0 then x -= offset; y -= offset
@@ -39,5 +38,5 @@ quadKeyToLocation = (qk) ->
       when 3 then x += offset; y += offset
     offset *= 0.5
   output =
-   longitude: (x/mapSize - 0.5)*360
-   latitude:  (y/mapSize - 0.5)*180
+   longitude: x
+   latitude:  y/2
