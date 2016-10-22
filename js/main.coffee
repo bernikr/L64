@@ -3,10 +3,19 @@
 
 {% include_relative convert.coffee %}
 
+map = {}
+
 onNewPosition = (location) ->
-  console.log(locationToBase64(location.latitude, location.longitude))
+  base64address = locationToBase64(location.latitude, location.longitude, 8)
+  $('#addressField').val base64address
+
+onInput = (e) ->
+  location = base64ToLocation(e.target.value)
+  map.locationpicker "location", location
 
 $ ->
-  $('#map').locationpicker
+  map = $('#map').locationpicker
     radius: 0
     onchanged: onNewPosition
+    markerInCenter: true
+  $('#addressField').change onInput

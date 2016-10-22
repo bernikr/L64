@@ -1,16 +1,22 @@
 base64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"
 
-locationToBase64 = (lat, lon) ->
-  quadKey = toQuadKey(lat, lon, 30)
+locationToBase64 = (lat, lon, length) ->
+  quadKey = locationToQuadKey(lat, lon, length*3)
   splitQK = (quadKey.substr(x*3, 3) for x in [0..quadKey.length/3-1])
   numericKey = (parseInt(qk, 4) for qk in splitQK)
-  base64key = (base64.charAt(x) for x in numericKey).join('')
+  base64Location = (base64.charAt(x) for x in numericKey).join('')
 
-toQuadKey = (lat, lon, level) ->
+base64ToLocation = (base64Location) ->
+  chars = base64Location.split('')
+  numericKey = (base64.indexOf(char) for char in chars)
+  quadKey = (("00" + num.toString(4)).slice(-3) for num in numericKey).join('')
+  location = quadKeyToLocation(quadKey)
+
+locationToQuadKey = (lat, lon, level) ->
   mapSize = 1 << level
 
-  x = (lon + 180) / 360 * mapSize
-  y = (lat + 90 ) / 180 * mapSize
+  x = (lon / 360 + 0.5) * mapSize
+  y = (lat / 180 + 0.5) * mapSize
 
   quadKey = ""
   for i in [level..1]
@@ -20,3 +26,18 @@ toQuadKey = (lat, lon, level) ->
     digit += 2 if (y & mask) != 0
     quadKey += digit
   quadKey
+
+quadKeyToLocation = (qk) ->
+  mapSize = 1 << qk.length
+  [x, y] = [mapSize/2, mapSize/2]
+  offset = mapSize/4
+  for square in qk.split('')
+    switch parseInt(square)
+      when 0 then x -= offset; y -= offset
+      when 1 then x += offset; y -= offset
+      when 2 then x -= offset; y += offset
+      when 3 then x += offset; y += offset
+    offset *= 0.5
+  output =
+   longitude: (x/mapSize - 0.5)*360
+   latitude:  (y/mapSize - 0.5)*180
