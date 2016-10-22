@@ -9,7 +9,7 @@ box = {}
 {% include_relative functions.coffee %}
 
 onNewPosition = (location) ->
-  l64 = locationToBase64(location.latitude, location.longitude, 8)
+  l64 = locationToL64(location.latitude, location.longitude, 8)
   drawAccuracy(l64)
   $('#addressField').val l64
   window.location.hash = l64

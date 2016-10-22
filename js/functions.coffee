@@ -1,5 +1,5 @@
 drawAccuracy = (l64) ->
-  loc = base64ToLocation(l64)
+  loc = l64ToLocation(l64)
 
   lat = loc.latitude
   lon = loc.longitude
@@ -25,7 +25,7 @@ drawAccuracy = (l64) ->
   })
 
 setLocation = (l64) ->
-  location = base64ToLocation(l64)
+  location = l64ToLocation(l64)
   map.locationpicker "location", location
   zoomlevel = if l64.length<6 then l64.length*3 else 17
   mapContext.map.setZoom(zoomlevel)

@@ -1,12 +1,12 @@
 base64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"
 
-locationToBase64 = (lat, lon, length) ->
+locationToL64 = (lat, lon, length) ->
   quadKey = locationToQuadKey(lat, lon, length*3)
   splitQK = (quadKey.substr(x*3, 3) for x in [0..quadKey.length/3-1])
   numericKey = (parseInt(qk, 4) for qk in splitQK)
   base64Location = (base64.charAt(x) for x in numericKey).join('')
 
-base64ToLocation = (base64Location) ->
+l64ToLocation = (base64Location) ->
   chars = base64Location.split('')
   numericKey = (base64.indexOf(char) for char in chars)
   quadKey = (("00" + num.toString(4)).slice(-3) for num in numericKey).join('')
