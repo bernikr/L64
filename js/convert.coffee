@@ -1,3 +1,11 @@
+base64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"
+
+locationToBase64 = (lat, lon) ->
+  quadKey = toQuadKey(lat, lon, 30)
+  splitQK = (quadKey.substr(x*3, 3) for x in [0..quadKey.length/3-1])
+  numericKey = (parseInt(qk, 4) for qk in splitQK)
+  base64key = (base64.charAt(x) for x in numericKey).join('')
+
 toQuadKey = (lat, lon, level) ->
   mapSize = 1 << level
 
@@ -12,7 +20,3 @@ toQuadKey = (lat, lon, level) ->
     digit += 2 if (y & mask) != 0
     quadKey += digit
   quadKey
-
-splitQuadKey = (qk) -> (qk.substr(x*5, 5) for x in [0..qk.length/5-1])
-
-base4toInt = (num) -> parseInt(num, 4)
