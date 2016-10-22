@@ -38,5 +38,5 @@ quadKeyToLocation = (qk) ->
       when 3 then x += offset; y += offset
     offset *= 0.5
   output =
-   longitude: x
-   latitude:  y/2
+   lon: x
+   lat:  y/2

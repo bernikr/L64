@@ -1,33 +1,54 @@
+onNewPosition = (e) ->
+  lat = e.latLng.lat()
+  lon = e.latLng.lng()
+  l64 = locationToL64(lat, lon, 8)
+  drawAccuracy(l64)
+  $('#addressField').val l64
+  window.location.hash = l64
+
+onInput = (e) ->
+  input = e.target.value
+  setLocation(input) if input != ''
+
 drawAccuracy = (l64) ->
   loc = l64ToLocation(l64)
-
-  lat = loc.latitude
-  lon = loc.longitude
 
   dlon = 180/(Math.pow(8,l64.length))
   dlat = 90/(Math.pow(8,l64.length))
 
   bounds = {
-    north: lat+dlat
-    south: lat-dlat
-    east:  lon+dlon
-    west:  lon-dlon
+    north: loc.lat+dlat
+    south: loc.lat-dlat
+    east:  loc.lon+dlon
+    west:  loc.lon-dlon
   }
 
-  box.setOptions({
+  map.box.setOptions({
     strokeColor: '#FF0000'
     strokeOpacity: 0.8
     strokeWeight: 2
     fillColor: '#FF0000'
     fillOpacity: 0.35
-    map: mapContext.map
+    map: map.map
     bounds: bounds
   })
 
 setLocation = (l64) ->
-  location = l64ToLocation(l64)
-  map.locationpicker "location", location
+  loc = l64ToLocation(l64)
+  map.marker.setOptions({position: {lat: loc.lat, lng: loc.lon}})
+  map.map.setOptions({center: {lat: loc.lat, lng: loc.lon}})
   zoomlevel = if l64.length<6 then l64.length*3 else 17
-  mapContext.map.setZoom(zoomlevel)
+  map.map.setZoom(zoomlevel)
   drawAccuracy(l64)
   window.location.hash = l64
+
+initMap = ->
+  map.map = new google.maps.Map(document.getElementById('map'), {
+    center: {lat: 0, lng: 0}
+    zoom: 2
+  })
+  map.marker = new google.maps.Marker({
+    position: {lat: 0, lng: 0}
+    map: map.map
+    draggable: true
+  })
