@@ -17,5 +17,4 @@ $ ->
   map = $('#map').locationpicker
     radius: 0
     onchanged: onNewPosition
-    markerInCenter: true
   $('#addressField').change onInput
