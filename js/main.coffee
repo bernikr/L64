@@ -10,7 +10,7 @@ box = {}
 
 onNewPosition = (location) ->
   l64 = locationToBase64(location.latitude, location.longitude, 8)
-  drawAccuracy(location.latitude, location.longitude, 8)
+  drawAccuracy(l64)
   $('#addressField').val l64
   window.location.hash = l64
 

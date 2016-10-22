@@ -1,6 +1,11 @@
-drawAccuracy = (lat, lon, length) ->
-  dlon = 180/(Math.pow(8,length))
-  dlat = 90/(Math.pow(8,length))
+drawAccuracy = (l64) ->
+  loc = base64ToLocation(l64)
+
+  lat = loc.latitude
+  lon = loc.longitude
+
+  dlon = 180/(Math.pow(8,l64.length))
+  dlat = 90/(Math.pow(8,l64.length))
 
   bounds = {
     north: lat+dlat
@@ -24,5 +29,5 @@ setLocation = (l64) ->
   map.locationpicker "location", location
   zoomlevel = if l64.length<6 then l64.length*3 else 17
   mapContext.map.setZoom(zoomlevel)
-  drawAccuracy(location.latitude, location.longitude, l64.length)
+  drawAccuracy(l64)
   window.location.hash = l64
