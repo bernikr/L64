@@ -1,42 +1,46 @@
 base64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"
 
 locationToL64 = (lat, lon, length) ->
-  quadKey = locationToQuadKey(lat, lon, length*3)
-  splitQK = (quadKey.substr(x*3, 3) for x in [0..quadKey.length/3-1])
-  numericKey = (parseInt(qk, 4) for qk in splitQK)
-  base64Location = (base64.charAt(x) for x in numericKey).join('')
+  # normalize the coordinates to be in the range 0..1
+  x = (lon / 360 + 0.5)
+  y = (lat / 180 + 0.5)
+
+  # transform the coordinates to a binary tree per coordinate
+  [x,y] = (pad(c.toString(2).substr(2), length*3) for c in [x,y])
+
+  # combine the binary trees into a single one by alternating digits
+  binaryTree = ''
+  for i in [0...length*3]
+    binaryTree += y.charAt(i) + x.charAt(i)
+
+  # split the binary tree in 6 bit chunks and convert them to base64
+  splitBT = (binaryTree.substr(x, 6) for x in [0...binaryTree.length] by 6)
+  base64Location = (base64.charAt(parseInt(x, 2)) for x in splitBT).join('')
 
 l64ToLocation = (base64Location) ->
+  # convert the L64 location into the binary tree by changing the basis
   chars = base64Location.split('')
   numericKey = (base64.indexOf(char) for char in chars)
-  quadKey = (("00" + num.toString(4)).slice(-3) for num in numericKey).join('')
-  location = quadKeyToLocation(quadKey)
+  binaryTree = (pad(num.toString(2),6, true) for num in numericKey).join('')
 
-locationToQuadKey = (lat, lon, level) ->
-  mapSize = 1 << level
+  # split the binary tree into the trees for x and y
+  [x, y] = ['','']
+  for i in [0...binaryTree.length] by 2
+    y += binaryTree.charAt(i)
+    x += binaryTree.charAt(i+1)
 
-  x = (lon / 360 + 0.5) * mapSize
-  y = (lat / 180 + 0.5) * mapSize
+  # convert the binary tree into coordinates between 0 and 1
+  [x,y] = ((parseInt(c, 2)+0.5)/Math.pow(2, binaryTree.length/2) for c in [x,y])
 
-  quadKey = ""
-  for i in [level..1]
-    digit = 0
-    mask = 1 << (i-1)
-    digit += 1 if (x & mask) != 0
-    digit += 2 if (y & mask) != 0
-    quadKey += digit
-  quadKey
+  # transform the normalized coordinates back into lat and lon
+  location =
+    lon: (x - 0.5) * 360
+    lat: (y - 0.5) * 180
 
-quadKeyToLocation = (qk) ->
-  [x, y] = [0, 0]
-  offset = 90
-  for square in qk.split('')
-    switch parseInt(square)
-      when 0 then x -= offset; y -= offset
-      when 1 then x += offset; y -= offset
-      when 2 then x -= offset; y += offset
-      when 3 then x += offset; y += offset
-    offset *= 0.5
-  output =
-   lon: x
-   lat:  y/2
+# function to left or right pad numbers with 0s to a wished length
+pad = (str, length, padLeft) ->
+  padding = '0'.repeat(length)
+  if padLeft
+    (padding + str).slice(-length)
+  else
+    (str + padding).substring(0, length)
