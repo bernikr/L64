@@ -1,5 +1,2 @@
-exclude:
-    - lib/jquery-locationpicker-plugin/
-
 gems:
     - jekyll-coffeescript
